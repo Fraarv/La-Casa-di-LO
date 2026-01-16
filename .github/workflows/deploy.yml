@@ -1,0 +1,79 @@
+name: Build and Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check Vite config
+        run: |
+          echo "Vite config content:"
+          cat vite.config.ts
+
+      - name: Clean and Build
+        run: |
+          rm -rf dist
+          npm run build
+
+      - name: Move build files
+        run: mv dist .temp-build
+
+      - name: List build output
+        run: |
+          echo "Contents of .temp-build folder:"
+          ls -la .temp-build/
+          echo "Checking index.html:"
+          head -20 .temp-build/index.html
+          echo "Checking for base path in assets:"
+          grep -o "/La-Casa-di-LO/[^\"]*" .temp-build/index.html || echo "Base path not found in expected format"
+
+      - name: Create docs folder and copy files
+        run: |
+          mkdir -p docs
+          cp -r .temp-build/* docs/
+          touch docs/.nojekyll
+          echo "Contents of docs folder:"
+          ls -la docs/
+
+      - name: Deploy to gh-pages branch
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          # Create and switch to gh-pages branch
+          git checkout -b gh-pages || git checkout gh-pages
+          
+          # Remove all files except .git, .github, and .temp-build
+          find . -maxdepth 1 ! -name '.git' ! -name '.github' ! -name '.temp-build' -exec rm -rf {} + 2>/dev/null || true
+          
+          # Copy build files to root
+          cp -r .temp-build/* .
+          touch .nojekyll
+          
+          # Add and commit
+          git add .
+          git commit -m "Deploy to GitHub Pages" || echo "No changes to commit"
+          
+          # Push to gh-pages branch
+          git push origin gh-pages --force
