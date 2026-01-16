@@ -8,6 +8,12 @@ Questa webapp è stata sviluppata per presentare e gestire le prenotazioni per L
 - **Presentazione della casa**: Descrizione dettagliata con foto e amenities
 - **Sistema di prenotazione**: Form per richiedere prenotazioni
 
+## Sito Live
+
+🌐 **Visita la webapp:** [https://fraarv.github.io/La-Casa-di-LO/](https://fraarv.github.io/La-Casa-di-LO/)
+
+L'applicazione è deployata automaticamente su GitHub Pages tramite GitHub Actions.
+
 ## Esegui Localmente
 
 **Prerequisiti:** Node.js
