@@ -5,9 +5,12 @@
  */
 
 import React, { useState } from 'react';
-import { MapPin, Wifi, Coffee, Utensils, Waves, CalendarCheck, Home, Tv, Wind, Dog, Users, Globe, CheckCircle, Ban, ShowerHead, Instagram, Phone, User, Send as SendIcon, Loader2, Minus, Plus, Calendar, Train, Plane, UtensilsCrossed, Zap, Shirt } from 'lucide-react';
+import { MapPin, Wifi, Coffee, Utensils, Waves, CalendarCheck, Home, Tv, Wind, Dog, Users, CheckCircle, Ban, ShowerHead, Instagram, Minus, Plus, Train, Plane, UtensilsCrossed, Zap, Shirt } from 'lucide-react';
 import { DatePicker } from './components/DatePicker';
-import logoImg from './public/logo2.jpg';
+import { CookieBanner } from './components/CookieBanner';
+
+// Prefissa gli asset statici con il base path configurato in Vite
+const assetUrl = (path: string) => `${import.meta.env.BASE_URL}${path}`;
 
 function App() {
   // Booking State
@@ -79,7 +82,6 @@ function App() {
     // Costruzione URL Airbnb
     const baseUrl = "https://www.airbnb.it/rooms/7941460";
     const params = new URLSearchParams({
-        source_impression_id: "p3_1764871829_P3QyFIgb1DB2TuzK",
         check_in: checkIn,
         check_out: checkOut,
         guests: (adults + children + infants).toString(),
@@ -148,9 +150,9 @@ function App() {
                 className="fixed top-6 left-6 z-50 bg-white border border-puglia-sea/20 shadow-xl hover:scale-110 transition-all rounded-full cursor-pointer h-16 w-16 md:h-20 md:w-20 flex items-center justify-center overflow-hidden p-1.5"
                 aria-label="Torna all'inizio"
             >
-                                <img 
-                                        src={logoImg}
-                                        alt="La Casa di LO" 
+                                <img
+                                        src={assetUrl('logo-small.webp')}
+                                        alt="La Casa di LO"
                                         className="w-full h-full object-contain" 
                                 />
             </button>
@@ -159,8 +161,8 @@ function App() {
       <header className="relative h-[85vh] w-full overflow-hidden">
         {/* Background Image - High Quality Puglia Interior */}
         <div className="absolute inset-0">
-          <img 
-            src="immagini/sala.jpg" 
+          <img
+            src={assetUrl('immagini/sala.jpg')}
             onError={(e) => {
               // Fallback se l'immagine locale non carica
               e.currentTarget.src = "https://images.unsplash.com/photo-1493809842364-78817add7ffb?q=80&w=2070&auto=format&fit=crop";
@@ -279,8 +281,8 @@ function App() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {galleryImages.map((src, index) => (
                         <div key={index} className="aspect-square overflow-hidden rounded-xl shadow-lg bg-stone-200">
-                            <img 
-                                src={src} 
+                            <img
+                                src={assetUrl(src)}
                                 alt={`La Casa di LO - Foto ${index + 1}`} 
                                 className="w-full h-full object-cover hover:scale-110 transition-transform duration-500" 
                                 onError={(e) => {
@@ -509,6 +511,9 @@ function App() {
             &copy; {new Date().getFullYear()} La Casa di LO. Tutti i diritti riservati.
         </div>
       </footer>
+
+      {/* Banner consenso cookie (GDPR): Google Analytics parte solo dopo l'accettazione */}
+      <CookieBanner />
     </div>
   );
 }

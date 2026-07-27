@@ -1,10 +1,88 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>La Casa di LO - Monopoli</title>
-    <link rel="icon" type="image/x-icon" href="/logo2.jpg">
+    <title>La Casa di LO - Casa Vacanze a Monopoli</title>
+    <meta name="description" content="Casa vacanze nel centro storico di Monopoli: volte in tufo a vista, WiFi, aria condizionata e spiaggia di Porta Vecchia a 5 minuti. Ideale per 2 ospiti, animali ammessi." />
+    <link rel="canonical" href="https://fraarv.github.io/La-Casa-di-LO/" />
+    <link rel="icon" type="image/png" href="%BASE_URL%favicon.png">
+    <meta name="theme-color" content="#006994" />
+
+    <!-- Open Graph (Facebook, WhatsApp, LinkedIn) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="La Casa di LO" />
+    <meta property="og:title" content="La Casa di LO - Casa Vacanze a Monopoli" />
+    <meta property="og:description" content="Il tuo autentico rifugio in pietra nel cuore di Monopoli: volte in tufo a vista, a 5 minuti dalla spiaggia di Porta Vecchia." />
+    <meta property="og:url" content="https://fraarv.github.io/La-Casa-di-LO/" />
+    <meta property="og:image" content="https://fraarv.github.io/La-Casa-di-LO/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Soggiorno de La Casa di LO con volte in tufo a vista" />
+    <meta property="og:locale" content="it_IT" />
+
+    <!-- Twitter / X Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="La Casa di LO - Casa Vacanze a Monopoli" />
+    <meta name="twitter:description" content="Il tuo autentico rifugio in pietra nel cuore di Monopoli, a 5 minuti dalla spiaggia di Porta Vecchia." />
+    <meta name="twitter:image" content="https://fraarv.github.io/La-Casa-di-LO/og-image.jpg" />
+
+    <!-- Dati strutturati per i motori di ricerca -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "VacationRental",
+      "name": "La Casa di LO",
+      "description": "Casetta indipendente al piano terra nel centro storico di Monopoli, con volte in tufo a vista e pavimentazione storica. Soggiorno, cucina, camera da letto e bagno. Ospita 2 persone, animali ammessi.",
+      "url": "https://fraarv.github.io/La-Casa-di-LO/",
+      "inLanguage": "it",
+      "image": [
+        "https://fraarv.github.io/La-Casa-di-LO/immagini/sala.jpg",
+        "https://fraarv.github.io/La-Casa-di-LO/immagini/camera-klimt.jpg",
+        "https://fraarv.github.io/La-Casa-di-LO/immagini/bagno-pietra.jpg",
+        "https://fraarv.github.io/La-Casa-di-LO/immagini/esterno.jpg"
+      ],
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Vico Castelfidardo, 10",
+        "addressLocality": "Monopoli",
+        "addressRegion": "Puglia",
+        "postalCode": "70043",
+        "addressCountry": "IT"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 40.9525,
+        "longitude": 17.3027
+      },
+      "occupancy": {
+        "@type": "QuantitativeValue",
+        "maxValue": 2
+      },
+      "petsAllowed": true,
+      "amenityFeature": [
+        { "@type": "LocationFeatureSpecification", "name": "WiFi gratuito", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "Aria condizionata", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "Cucina attrezzata", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "TV schermo piatto", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "Animali ammessi", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "Check-in express", "value": true }
+      ],
+      "knowsLanguage": ["it", "en", "fr", "es"],
+      "identifier": {
+        "@type": "PropertyValue",
+        "name": "CIN",
+        "value": "IT072030C200040067"
+      },
+      "sameAs": [
+        "https://www.instagram.com/lacasadilo/",
+        "https://www.airbnb.it/rooms/7941460",
+        "https://www.booking.com/hotel/it/la-casa-di-lo.it.html",
+        "https://www.google.com/maps/place//data=!4m2!3m1!1s0x134635d9ab938c47:0xe8e37bef98b3f6e2"
+      ]
+    }
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     <script>
@@ -32,25 +110,6 @@
       /* Smooth scrolling */
       html { scroll-behavior: smooth; }
     </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react/": "https://aistudiocdn.com/react@^19.2.1/",
-    "react": "https://aistudiocdn.com/react@^19.2.1",
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/"
-  }
-}
-</script>
-<link rel="stylesheet" href="/index.css">
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SZS9ZJKXSW"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-SZS9ZJKXSW');
-    </script>
 </head>
   <body class="bg-puglia-stone text-gray-800 antialiased">
     <div id="root"></div>
