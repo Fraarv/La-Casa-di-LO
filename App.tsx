@@ -261,7 +261,7 @@ function App() {
                             <li className="flex items-center gap-2"><Utensils size={16} className="text-puglia-olive"/> Piano cottura, Forno, Frigo</li>
                             <li className="flex items-center gap-2"><Coffee size={16} className="text-puglia-olive"/> Macchina Caffè</li>
                             <li className="flex items-center gap-2"><ShowerHead size={16} className="text-puglia-sea"/> Asciugacapelli</li>
-                            <li className="flex items-center gap-2"><CheckCircle size={16} className="text-puglia-sea"/> Set cortesia in omaggio</li>
+                            <li className="flex items-center gap-2"><CheckCircle size={16} className="text-puglia-sea"/> Set cortesia</li>
                         </ul>
                     </div>
                 </div>
