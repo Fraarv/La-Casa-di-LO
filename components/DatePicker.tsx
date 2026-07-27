@@ -5,7 +5,9 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
+import type { TranslationKey } from '../i18n/translations';
 
 interface DatePickerProps {
   checkIn: string;
@@ -14,14 +16,19 @@ interface DatePickerProps {
   onClose: () => void;
 }
 
-const MONTHS = [
-  'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
-  'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
-];
+// Chiavi di traduzione per mesi e giorni: l'etichetta visibile arriva dal dizionario
+const MONTH_KEYS = Array.from(
+  { length: 12 },
+  (_, i) => `datepicker.month.${i}` as TranslationKey,
+);
 
-const DAYS = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
+const DAY_KEYS = Array.from(
+  { length: 7 },
+  (_, i) => `datepicker.day.${i}` as TranslationKey,
+);
 
 export const DatePicker: React.FC<DatePickerProps> = ({ checkIn, checkOut, onSelect, onClose }) => {
+  const { t } = useLanguage();
   const [currentDate, setCurrentDate] = useState(new Date());
   
   // Parse initial dates or default to today
@@ -148,16 +155,18 @@ export const DatePicker: React.FC<DatePickerProps> = ({ checkIn, checkOut, onSel
         <button 
             type="button"
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); changeMonth(-1); }} 
+            aria-label={t('datepicker.prevMonth')}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
         >
             <ChevronLeft size={20} />
         </button>
         <h3 className="font-bold text-lg text-gray-800">
-            {MONTHS[currentDate.getMonth()]} {currentDate.getFullYear()}
+            {t(MONTH_KEYS[currentDate.getMonth()])} {currentDate.getFullYear()}
         </h3>
         <button 
             type="button"
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); changeMonth(1); }} 
+            aria-label={t('datepicker.nextMonth')}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
         >
             <ChevronRight size={20} />
@@ -165,9 +174,9 @@ export const DatePicker: React.FC<DatePickerProps> = ({ checkIn, checkOut, onSel
       </div>
 
       <div className="grid grid-cols-7 mb-2">
-        {DAYS.map(d => (
-            <div key={d} className="text-center text-xs font-bold text-gray-400 uppercase py-2">
-                {d}
+        {DAY_KEYS.map(key => (
+            <div key={key} className="text-center text-xs font-bold text-gray-400 uppercase py-2">
+                {t(key)}
             </div>
         ))}
       </div>
@@ -182,7 +191,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({ checkIn, checkOut, onSel
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onClose(); }}
             className="text-sm font-bold underline px-4 py-2 hover:bg-gray-50 rounded-lg text-gray-900"
         >
-            Chiudi
+            {t('datepicker.close')}
         </button>
       </div>
     </div>

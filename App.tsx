@@ -4,15 +4,40 @@
  * Copyright (c) 2026 La Casa di LO. Tutti i diritti riservati.
  */
 
-import React, { useState } from 'react';
-import { MapPin, Wifi, Coffee, Utensils, Waves, CalendarCheck, Home, Tv, Wind, Dog, Users, CheckCircle, Ban, ShowerHead, Instagram, Minus, Plus, Train, Plane, UtensilsCrossed, Zap, Shirt } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { MapPin, Wifi, Coffee, Utensils, Waves, CalendarCheck, Home, Tv, Wind, Dog, Users, CheckCircle, Ban, ShowerHead, Instagram, Minus, Plus, Train, Plane, UtensilsCrossed, Zap, Shirt, Menu, X } from 'lucide-react';
 import { DatePicker } from './components/DatePicker';
 import { CookieBanner } from './components/CookieBanner';
+import { LanguageSwitcher } from './components/LanguageSwitcher';
+import { Lightbox } from './components/Lightbox';
+import { useLanguage } from './i18n/LanguageContext';
+import type { TranslationKey } from './i18n/translations';
 
 // Prefissa gli asset statici con il base path configurato in Vite
 const assetUrl = (path: string) => `${import.meta.env.BASE_URL}${path}`;
 
+// Sezioni della pagina: usate sia dal menu desktop sia da quello mobile
+const NAV_SECTIONS: { id: string; labelKey: TranslationKey }[] = [
+  { id: 'about', labelKey: 'nav.about' },
+  { id: 'amenities', labelKey: 'nav.amenities' },
+  { id: 'gallery', labelKey: 'nav.gallery' },
+  { id: 'location', labelKey: 'nav.location' },
+  { id: 'book', labelKey: 'nav.book' },
+];
+
+// Foto della galleria con la chiave dell'alt descrittivo tradotto
+const GALLERY_IMAGES: { src: string; altKey: TranslationKey }[] = [
+  { src: 'immagini/sala.jpg', altKey: 'gallery.image.sala' },
+  { src: 'immagini/camera-klimt.jpg', altKey: 'gallery.image.cameraKlimt' },
+  { src: 'immagini/camera-cuscini.jpg', altKey: 'gallery.image.cameraCuscini' },
+  { src: 'immagini/bagno-pietra.jpg', altKey: 'gallery.image.bagnoPietra' },
+  { src: 'immagini/esterno.jpg', altKey: 'gallery.image.esterno' },
+  { src: 'immagini/posta.jpg', altKey: 'gallery.image.posta' },
+];
+
 function App() {
+  const { t, formatDate } = useLanguage();
+
   // Booking State
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
@@ -26,15 +51,34 @@ function App() {
   const totalMainGuests = adults + children;
   const maxMainGuests = 2;
 
-  const galleryImages = [
-    "immagini/sala.jpg",
-    "immagini/camera-klimt.jpg",
-    "immagini/camera-cuscini.jpg",
-    "immagini/bagno-pietra.jpg",
-    "immagini/esterno.jpg",
-    "immagini/posta.jpg"
+  // Menu mobile e lightbox galleria
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  ];
+  const lightboxImages = GALLERY_IMAGES.map(({ src, altKey }) => ({
+    src: assetUrl(src),
+    alt: t(altKey),
+  }));
+
+  // Con il menu mobile aperto blocchiamo lo scroll della pagina sotto
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [mobileMenuOpen]);
+
+  // Esc chiude il menu mobile
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileMenuOpen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [mobileMenuOpen]);
 
   const incrementAdults = () => {
     if (totalMainGuests < maxMainGuests) {
@@ -75,7 +119,7 @@ function App() {
   const handleBooking = (e: React.FormEvent) => {
     e.preventDefault();
     if (!checkIn || !checkOut) {
-        alert("Seleziona le date di check-in e check-out.");
+        alert(t('book.alert.missingDates'));
         return;
     }
 
@@ -96,7 +140,7 @@ function App() {
   const handleBookingDotCom = (e: React.MouseEvent) => {
     e.preventDefault();
     if (!checkIn || !checkOut) {
-        alert("Seleziona le date di check-in e check-out.");
+        alert(t('book.alert.missingDates'));
         return;
     }
 
@@ -125,6 +169,7 @@ function App() {
 
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault();
+    setMobileMenuOpen(false);
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
@@ -135,11 +180,9 @@ function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const formatDateDisplay = (dateStr: string) => {
-      if (!dateStr) return 'Seleziona data';
-      const d = new Date(dateStr);
-      return d.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' });
-  };
+  // Data mostrata nel form: locale it-IT o en-GB in base alla lingua attiva
+  const formatDateDisplay = (dateStr: string) =>
+      dateStr ? formatDate(dateStr) : t('book.selectDate');
 
   return (
     <div className="min-h-screen flex flex-col font-sans text-gray-800 relative">
@@ -148,11 +191,11 @@ function App() {
             <button 
                 onClick={scrollToTop}
                 className="fixed top-6 left-6 z-50 bg-white border border-puglia-sea/20 shadow-xl hover:scale-110 transition-all rounded-full cursor-pointer h-16 w-16 md:h-20 md:w-20 flex items-center justify-center overflow-hidden p-1.5"
-                aria-label="Torna all'inizio"
+                aria-label={t('nav.backToTop')}
             >
                                 <img
                                         src={assetUrl('logo-small.webp')}
-                                        alt="La Casa di LO"
+                                        alt={t('hero.logoAlt')}
                                         className="w-full h-full object-contain" 
                                 />
             </button>
@@ -167,26 +210,80 @@ function App() {
               // Fallback se l'immagine locale non carica
               e.currentTarget.src = "https://images.unsplash.com/photo-1493809842364-78817add7ffb?q=80&w=2070&auto=format&fit=crop";
             }}
-            alt="Interno La Casa di LO" 
+            alt={t('hero.imageAlt')}
             className="w-full h-full object-cover object-center"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
         </div>
         
-        <nav className="absolute top-0 w-full z-20 p-6 flex justify-end items-center text-white">
-            <div className="hidden md:flex gap-8 text-sm font-semibold tracking-wide uppercase bg-black/20 backdrop-blur-sm px-6 py-2 rounded-full">
-                <a href="#about" onClick={(e) => scrollToSection(e, 'about')} className="hover:text-puglia-sun transition-colors cursor-pointer">La Casa</a>
-                <a href="#amenities" onClick={(e) => scrollToSection(e, 'amenities')} className="hover:text-puglia-sun transition-colors cursor-pointer">Servizi</a>
-                <a href="#gallery" onClick={(e) => scrollToSection(e, 'gallery')} className="hover:text-puglia-sun transition-colors cursor-pointer">Galleria</a>
-                <a href="#location" onClick={(e) => scrollToSection(e, 'location')} className="hover:text-puglia-sun transition-colors cursor-pointer">Posizione</a>
-                <a href="#book" onClick={(e) => scrollToSection(e, 'book')} className="hover:text-puglia-sun transition-colors cursor-pointer">Prenota</a>
+        <nav className="absolute top-0 w-full z-30 p-6 flex justify-end items-center text-white">
+            {/* Menu desktop: link di sezione + selettore lingua */}
+            <div className="hidden md:flex items-center gap-8 text-sm font-semibold tracking-wide uppercase bg-black/20 backdrop-blur-sm px-6 py-2 rounded-full">
+                {NAV_SECTIONS.map(({ id, labelKey }) => (
+                    <a
+                        key={id}
+                        href={`#${id}`}
+                        onClick={(e) => scrollToSection(e, id)}
+                        className="hover:text-puglia-sun transition-colors cursor-pointer"
+                    >
+                        {t(labelKey)}
+                    </a>
+                ))}
+                <LanguageSwitcher variant="light" />
             </div>
+
+            {/* Pulsante hamburger (solo mobile) */}
+            <button
+                type="button"
+                onClick={() => setMobileMenuOpen((open) => !open)}
+                aria-label={mobileMenuOpen ? t('nav.closeMenu') : t('nav.openMenu')}
+                aria-expanded={mobileMenuOpen}
+                aria-controls="mobile-menu"
+                className="md:hidden p-2.5 rounded-full bg-black/30 backdrop-blur-sm border border-white/30 hover:bg-black/50 transition-colors"
+            >
+                {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
         </nav>
+
+        {/* Pannello del menu mobile */}
+        {mobileMenuOpen && (
+            <>
+                <div
+                    className="md:hidden fixed inset-0 z-20 bg-black/50 backdrop-blur-sm"
+                    onClick={() => setMobileMenuOpen(false)}
+                    aria-hidden="true"
+                />
+                <div
+                    id="mobile-menu"
+                    className="md:hidden fixed top-24 right-4 left-4 z-30 bg-white rounded-2xl shadow-2xl border border-stone-200 p-5 animate-in fade-in slide-in-from-top-2 duration-200"
+                >
+                    <ul className="flex flex-col divide-y divide-stone-100">
+                        {NAV_SECTIONS.map(({ id, labelKey }) => (
+                            <li key={id}>
+                                <a
+                                    href={`#${id}`}
+                                    onClick={(e) => scrollToSection(e, id)}
+                                    className="block py-3 text-base font-semibold text-gray-800 hover:text-puglia-sea transition-colors"
+                                >
+                                    {t(labelKey)}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                    <div className="flex items-center justify-between pt-4 mt-2 border-t border-stone-200">
+                        <span className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                            {t('nav.language')}
+                        </span>
+                        <LanguageSwitcher variant="dark" onSelect={() => setMobileMenuOpen(false)} />
+                    </div>
+                </div>
+            </>
+        )}
 
         <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center z-10 px-4">
           <h1 className="text-5xl md:text-7xl font-serif italic mb-4 drop-shadow-lg">La Casa di LO</h1>
           <p className="text-lg md:text-2xl font-light tracking-wider mb-8 drop-shadow-md">
-            Il tuo autentico rifugio in pietra nel cuore di Monopoli
+            {t('hero.tagline')}
           </p>
           <a 
             href="https://www.google.com/maps/place//data=!4m2!3m1!1s0x134635d9ab938c47:0xe8e37bef98b3f6e2"
@@ -195,7 +292,7 @@ function App() {
             className="flex items-center gap-2 text-sm md:text-base font-medium bg-white/20 backdrop-blur-md px-6 py-2 rounded-full border border-white/30 hover:bg-white/30 transition-colors cursor-pointer"
           >
             <MapPin size={18} className="text-puglia-sun" />
-            Vico Castelfidardo, 10, Monopoli (BA)
+            {t('hero.address')}
           </a>
         </div>
       </header>
@@ -205,17 +302,16 @@ function App() {
         
         {/* Intro Text */}
         <section id="about" className="py-20 px-6 max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-serif text-puglia-sea mb-8">Benvenuti a Casa</h2>
+            <h2 className="text-3xl font-serif text-puglia-sea mb-8">{t('about.title')}</h2>
             <div className="prose prose-lg text-gray-600 mx-auto leading-relaxed">
                 <p className="mb-6">
-                    Ristrutturata da poco, <strong>La Casa di LO</strong> è una graziosa casetta indipendente al piano terra, caratterizzata da suggestive volte in tufo a vista e pavimentazione storica.
+                    {t('about.p1.before')}<strong>{t('about.p1.strong')}</strong>{t('about.p1.after')}
                 </p>
                 <p>
-                    Situata a soli <strong>5 minuti</strong> dalla piazza centrale e dalla cattedrale, e a pochi passi dalla famosa <strong>Spiaggia di Porta Vecchia</strong>.
-                    La casa offre circa 30 m² di atmosfera autentica pugliese, composta da soggiorno, cucina, camera da letto e bagno.
+                    {t('about.p2.before')}<strong>{t('about.p2.strong1')}</strong>{t('about.p2.middle')}<strong>{t('about.p2.strong2')}</strong>{t('about.p2.after')}
                 </p>
                 <p className="italic text-puglia-olive">
-                    Possiamo ospitare 2 persone. Su richiesta possiamo fornire un lettino da viaggio per bambini.
+                    {t('about.p3')}
                 </p>
             </div>
         </section>
@@ -223,53 +319,53 @@ function App() {
         {/* Amenities Grid */}
         <section id="amenities" className="py-16 px-6 bg-white border-y border-stone-200">
             <div className="max-w-6xl mx-auto">
-                <h2 className="text-3xl font-serif text-center mb-12 text-gray-800">Comfort e Servizi</h2>
+                <h2 className="text-3xl font-serif text-center mb-12 text-gray-800">{t('amenities.title')}</h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {/* Apartment Features */}
                     <div className="p-6 bg-stone-50 rounded-xl border border-stone-100">
                         <h3 className="text-xl font-bold text-puglia-sea mb-4 flex items-center gap-2">
-                            <Home className="w-5 h-5"/> L'Appartamento
+                            <Home className="w-5 h-5"/> {t('amenities.apartment.title')}
                         </h3>
                         <ul className="space-y-3 text-gray-600">
-                            <li className="flex items-center gap-2"><CheckCircle size={16} className="text-puglia-olive"/> Piano Terra Indipendente</li>
-                            <li className="flex items-center gap-2"><CheckCircle size={16} className="text-puglia-olive"/> Volte in tufo a vista</li>
-                            <li className="flex items-center gap-2"><Zap size={16} className="text-puglia-olive"/> Check-in express</li>
-                            <li className="flex items-center gap-2"><Home size={16} className="text-puglia-olive"/> Minimarket sul posto</li>
+                            <li className="flex items-center gap-2"><CheckCircle size={16} className="text-puglia-olive"/> {t('amenities.apartment.groundFloor')}</li>
+                            <li className="flex items-center gap-2"><CheckCircle size={16} className="text-puglia-olive"/> {t('amenities.apartment.vaults')}</li>
+                            <li className="flex items-center gap-2"><Zap size={16} className="text-puglia-olive"/> {t('amenities.apartment.expressCheckin')}</li>
+                            <li className="flex items-center gap-2"><Home size={16} className="text-puglia-olive"/> {t('amenities.apartment.minimarket')}</li>
                         </ul>
                     </div>
 
                     {/* Comforts */}
                     <div className="p-6 bg-stone-50 rounded-xl border border-stone-100">
                         <h3 className="text-xl font-bold text-puglia-sea mb-4 flex items-center gap-2">
-                            <Wind className="w-5 h-5"/> Comfort
+                            <Wind className="w-5 h-5"/> {t('amenities.comfort.title')}
                         </h3>
                         <ul className="space-y-3 text-gray-600">
-                            <li className="flex items-center gap-2"><Wifi size={16} className="text-puglia-sea"/> WiFi Gratuito</li>
-                            <li className="flex items-center gap-2"><Wind size={16} className="text-puglia-sea"/> Aria Condizionata</li>
-                            <li className="flex items-center gap-2"><Tv size={16} className="text-puglia-sea"/> TV Schermo Piatto (Cavo)</li>
-                            <li className="flex items-center gap-2"><Shirt size={16} className="text-puglia-sea"/> Ferro e asse da stiro</li>
+                            <li className="flex items-center gap-2"><Wifi size={16} className="text-puglia-sea"/> {t('amenities.comfort.wifi')}</li>
+                            <li className="flex items-center gap-2"><Wind size={16} className="text-puglia-sea"/> {t('amenities.comfort.ac')}</li>
+                            <li className="flex items-center gap-2"><Tv size={16} className="text-puglia-sea"/> {t('amenities.comfort.tv')}</li>
+                            <li className="flex items-center gap-2"><Shirt size={16} className="text-puglia-sea"/> {t('amenities.comfort.iron')}</li>
                         </ul>
                     </div>
 
                     {/* Kitchen & Bath */}
                     <div className="p-6 bg-stone-50 rounded-xl border border-stone-100">
                         <h3 className="text-xl font-bold text-puglia-sea mb-4 flex items-center gap-2">
-                            <Utensils className="w-5 h-5"/> Cucina e Bagno
+                            <Utensils className="w-5 h-5"/> {t('amenities.kitchen.title')}
                         </h3>
                         <ul className="space-y-3 text-gray-600">
-                            <li className="flex items-center gap-2"><Utensils size={16} className="text-puglia-olive"/> Piano cottura, Forno, Frigo</li>
-                            <li className="flex items-center gap-2"><Coffee size={16} className="text-puglia-olive"/> Macchina Caffè</li>
-                            <li className="flex items-center gap-2"><ShowerHead size={16} className="text-puglia-sea"/> Asciugacapelli</li>
-                            <li className="flex items-center gap-2"><CheckCircle size={16} className="text-puglia-sea"/> Set cortesia</li>
+                            <li className="flex items-center gap-2"><Utensils size={16} className="text-puglia-olive"/> {t('amenities.kitchen.stove')}</li>
+                            <li className="flex items-center gap-2"><Coffee size={16} className="text-puglia-olive"/> {t('amenities.kitchen.coffee')}</li>
+                            <li className="flex items-center gap-2"><ShowerHead size={16} className="text-puglia-sea"/> {t('amenities.kitchen.hairdryer')}</li>
+                            <li className="flex items-center gap-2"><CheckCircle size={16} className="text-puglia-sea"/> {t('amenities.kitchen.toiletries')}</li>
                         </ul>
                     </div>
                 </div>
 
                 <div className="mt-10 flex flex-wrap justify-center gap-6 text-sm font-semibold text-gray-500 uppercase tracking-wider">
-                     <span className="flex items-center gap-2"><Dog size={18}/> Animali Ammessi (Gratis)</span>
-                     <span className="flex items-center gap-2"><Users size={18}/> Max 2 Ospiti</span>
-                     <span className="flex items-center gap-2"><Ban size={18}/> No Fumatori</span>
+                     <span className="flex items-center gap-2"><Dog size={18}/> {t('amenities.badge.pets')}</span>
+                     <span className="flex items-center gap-2"><Users size={18}/> {t('amenities.badge.maxGuests')}</span>
+                     <span className="flex items-center gap-2"><Ban size={18}/> {t('amenities.badge.noSmoking')}</span>
                 </div>
             </div>
         </section>
@@ -277,20 +373,27 @@ function App() {
         {/* Gallery Grid */}
         <section id="gallery" className="py-16 bg-puglia-stone">
             <div className="max-w-6xl mx-auto px-6">
-                <h2 className="text-3xl font-serif text-center mb-12 text-gray-800">Galleria</h2>
+                <h2 className="text-3xl font-serif text-center mb-12 text-gray-800">{t('gallery.title')}</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {galleryImages.map((src, index) => (
-                        <div key={index} className="aspect-square overflow-hidden rounded-xl shadow-lg bg-stone-200">
+                    {lightboxImages.map((image, index) => (
+                        <button
+                            key={image.src}
+                            type="button"
+                            onClick={() => setLightboxIndex(index)}
+                            aria-label={`${t('gallery.openLightbox')}: ${image.alt}`}
+                            className="group aspect-square overflow-hidden rounded-xl shadow-lg bg-stone-200 cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-puglia-sea focus-visible:ring-offset-2"
+                        >
                             <img
-                                src={assetUrl(src)}
-                                alt={`La Casa di LO - Foto ${index + 1}`} 
-                                className="w-full h-full object-cover hover:scale-110 transition-transform duration-500" 
+                                src={image.src}
+                                alt={image.alt}
+                                loading="lazy"
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                 onError={(e) => {
                                    // Fallback silenzioso o placeholder se l'immagine manca
                                    e.currentTarget.style.display = 'none';
                                 }}
                             />
-                        </div>
+                        </button>
                     ))}
                 </div>
             </div>
@@ -299,19 +402,19 @@ function App() {
         {/* Location Info */}
         <section id="location" className="py-16 px-6 bg-white">
             <div className="max-w-6xl mx-auto text-center">
-                 <h2 className="text-3xl font-serif text-puglia-sea mb-10">Posizione Privilegiata</h2>
+                 <h2 className="text-3xl font-serif text-puglia-sea mb-10">{t('location.title')}</h2>
                  
                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-left">
                     {/* Spiagge */}
                     <div className="space-y-4 p-4 bg-stone-50 rounded-lg">
                         <div className="flex items-center gap-2 mb-2">
                             <Waves className="text-puglia-sea" size={24}/>
-                            <h4 className="font-bold text-gray-800 text-lg">Spiagge</h4>
+                            <h4 className="font-bold text-gray-800 text-lg">{t('location.beaches.title')}</h4>
                         </div>
                         <ul className="space-y-2 text-sm text-gray-600">
-                            <li className="flex justify-between"><span>Porta Vecchia</span> <span className="font-semibold">500 m</span></li>
-                            <li className="flex justify-between"><span>Cala Porto Rosso</span> <span className="font-semibold">900 m</span></li>
-                            <li className="flex justify-between"><span>Lido Pantano</span> <span className="font-semibold">1,5 km</span></li>
+                            <li className="flex justify-between"><span>{t('location.beaches.portaVecchia')}</span> <span className="font-semibold">500 m</span></li>
+                            <li className="flex justify-between"><span>{t('location.beaches.calaPortoRosso')}</span> <span className="font-semibold">900 m</span></li>
+                            <li className="flex justify-between"><span>{t('location.beaches.lidoPantano')}</span> <span className="font-semibold">{t('location.distance.lidoPantano')}</span></li>
                         </ul>
                     </div>
 
@@ -319,12 +422,12 @@ function App() {
                     <div className="space-y-4 p-4 bg-stone-50 rounded-lg">
                         <div className="flex items-center gap-2 mb-2">
                             <UtensilsCrossed className="text-puglia-terracotta" size={24}/>
-                            <h4 className="font-bold text-gray-800 text-lg">Nei Dintorni</h4>
+                            <h4 className="font-bold text-gray-800 text-lg">{t('location.around.title')}</h4>
                         </div>
                         <ul className="space-y-2 text-sm text-gray-600">
-                            <li className="flex justify-between"><span>Ristorante Il Ritrovo</span> <span className="font-semibold">150 m</span></li>
-                            <li className="flex justify-between"><span>Ristorante Pizziamo</span> <span className="font-semibold">200 m</span></li>
-                            <li className="flex justify-between"><span>Caffè dello Sport</span> <span className="font-semibold">250 m</span></li>
+                            <li className="flex justify-between"><span>{t('location.around.pizziamo')}</span> <span className="font-semibold">200 m</span></li>
+                            <li className="flex justify-between"><span>{t('location.around.caffeSport')}</span> <span className="font-semibold">250 m</span></li>
+                            <li className="flex justify-between"><span>{t('location.around.quadrifoglio')}</span> <span className="font-semibold">{t('location.distance.quadrifoglio')}</span></li>
                         </ul>
                     </div>
 
@@ -332,12 +435,12 @@ function App() {
                     <div className="space-y-4 p-4 bg-stone-50 rounded-lg">
                         <div className="flex items-center gap-2 mb-2">
                             <Train className="text-puglia-olive" size={24}/>
-                            <h4 className="font-bold text-gray-800 text-lg">Trasporti</h4>
+                            <h4 className="font-bold text-gray-800 text-lg">{t('location.transport.title')}</h4>
                         </div>
                         <ul className="space-y-2 text-sm text-gray-600">
-                            <li className="flex justify-between"><span>Stazione Monopoli</span> <span className="font-semibold">850 m</span></li>
-                            <li className="flex justify-between"><span className="flex items-center gap-1"><Plane size={12}/> Bari</span> <span className="font-semibold">57 km</span></li>
-                            <li className="flex justify-between"><span className="flex items-center gap-1"><Plane size={12}/> Brindisi</span> <span className="font-semibold">67 km</span></li>
+                            <li className="flex justify-between"><span>{t('location.transport.station')}</span> <span className="font-semibold">850 m</span></li>
+                            <li className="flex justify-between"><span className="flex items-center gap-1"><Plane size={12}/> {t('location.transport.bari')}</span> <span className="font-semibold">57 km</span></li>
+                            <li className="flex justify-between"><span className="flex items-center gap-1"><Plane size={12}/> {t('location.transport.brindisi')}</span> <span className="font-semibold">67 km</span></li>
                         </ul>
                     </div>
 
@@ -345,12 +448,12 @@ function App() {
                     <div className="space-y-4 p-4 bg-stone-50 rounded-lg">
                          <div className="flex items-center gap-2 mb-2">
                             <MapPin className="text-puglia-sun" size={24}/>
-                            <h4 className="font-bold text-gray-800 text-lg">Attrazioni</h4>
+                            <h4 className="font-bold text-gray-800 text-lg">{t('location.attractions.title')}</h4>
                         </div>
                         <ul className="space-y-2 text-sm text-gray-600">
-                            <li className="flex justify-between"><span>Cattedrale</span> <span className="font-semibold">5 min</span></li>
-                            <li className="flex justify-between"><span>Museo Egnazia</span> <span className="font-semibold">12 km</span></li>
-                            <li className="flex justify-between"><span>Polignano a Mare</span> <span className="font-semibold">9 km</span></li>
+                            <li className="flex justify-between"><span>{t('location.attractions.cathedral')}</span> <span className="font-semibold">{t('location.distance.cathedral')}</span></li>
+                            <li className="flex justify-between"><span>{t('location.attractions.egnazia')}</span> <span className="font-semibold">12 km</span></li>
+                            <li className="flex justify-between"><span>{t('location.attractions.polignano')}</span> <span className="font-semibold">9 km</span></li>
                         </ul>
                     </div>
                  </div>
@@ -361,8 +464,8 @@ function App() {
         <section id="book" className="py-20 px-6 bg-stone-100 border-t border-stone-200">
             <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-xl p-8 border border-stone-200">
                 <div className="text-center mb-8">
-                    <h2 className="text-3xl font-serif text-puglia-sea mb-2">Prenota il tuo soggiorno</h2>
-                    <p className="text-gray-600">Verifica la disponibilità sui portali</p>
+                    <h2 className="text-3xl font-serif text-puglia-sea mb-2">{t('book.title')}</h2>
+                    <p className="text-gray-600">{t('book.subtitle')}</p>
                 </div>
 
                 <form onSubmit={handleBooking} className="space-y-6 relative">
@@ -373,7 +476,7 @@ function App() {
                             className="p-3 bg-stone-50 hover:bg-stone-100 cursor-pointer border-r border-stone-300 transition-colors"
                             onClick={() => setShowDatePicker(true)}
                         >
-                            <label className="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-1">Check-in</label>
+                            <label className="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-1">{t('book.checkIn')}</label>
                             <div className={`font-medium ${!checkIn ? 'text-gray-400' : 'text-gray-800'}`}>
                                 {formatDateDisplay(checkIn)}
                             </div>
@@ -382,7 +485,7 @@ function App() {
                             className="p-3 bg-stone-50 hover:bg-stone-100 cursor-pointer transition-colors"
                             onClick={() => setShowDatePicker(true)}
                         >
-                             <label className="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-1">Check-out</label>
+                             <label className="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-1">{t('book.checkOut')}</label>
                              <div className={`font-medium ${!checkOut ? 'text-gray-400' : 'text-gray-800'}`}>
                                 {formatDateDisplay(checkOut)}
                             </div>
@@ -413,15 +516,15 @@ function App() {
                     <div className="space-y-4 bg-stone-50 p-4 rounded-xl border border-stone-100 mt-4">
                         <div className="flex items-center justify-between pb-4 border-b border-stone-200">
                             <div>
-                                <h4 className="font-semibold text-gray-800">Adulti</h4>
-                                <p className="text-xs text-gray-500">Età 13+</p>
+                                <h4 className="font-semibold text-gray-800">{t('book.adults')}</h4>
+                                <p className="text-xs text-gray-500">{t('book.adults.hint')}</p>
                             </div>
                             <div className="flex items-center gap-3">
-                                <button type="button" onClick={decrementAdults} className="w-8 h-8 rounded-full border border-stone-300 flex items-center justify-center hover:bg-white transition-colors disabled:opacity-30" disabled={adults <= 1}>
+                                <button type="button" onClick={decrementAdults} aria-label={`${t('book.decrease')} ${t('book.adults')}`} className="w-8 h-8 rounded-full border border-stone-300 flex items-center justify-center hover:bg-white transition-colors disabled:opacity-30" disabled={adults <= 1}>
                                     <Minus size={14}/>
                                 </button>
                                 <span className="w-4 text-center font-medium">{adults}</span>
-                                <button type="button" onClick={incrementAdults} className="w-8 h-8 rounded-full border border-stone-300 flex items-center justify-center hover:bg-white transition-colors disabled:opacity-30" disabled={totalMainGuests >= maxMainGuests}>
+                                <button type="button" onClick={incrementAdults} aria-label={`${t('book.increase')} ${t('book.adults')}`} className="w-8 h-8 rounded-full border border-stone-300 flex items-center justify-center hover:bg-white transition-colors disabled:opacity-30" disabled={totalMainGuests >= maxMainGuests}>
                                     <Plus size={14}/>
                                 </button>
                             </div>
@@ -429,15 +532,15 @@ function App() {
 
                         <div className="flex items-center justify-between pb-4 border-b border-stone-200">
                             <div>
-                                <h4 className="font-semibold text-gray-800">Bambini</h4>
-                                <p className="text-xs text-gray-500">Età 2-12</p>
+                                <h4 className="font-semibold text-gray-800">{t('book.children')}</h4>
+                                <p className="text-xs text-gray-500">{t('book.children.hint')}</p>
                             </div>
                             <div className="flex items-center gap-3">
-                                <button type="button" onClick={decrementChildren} className="w-8 h-8 rounded-full border border-stone-300 flex items-center justify-center hover:bg-white transition-colors disabled:opacity-30" disabled={children <= 0}>
+                                <button type="button" onClick={decrementChildren} aria-label={`${t('book.decrease')} ${t('book.children')}`} className="w-8 h-8 rounded-full border border-stone-300 flex items-center justify-center hover:bg-white transition-colors disabled:opacity-30" disabled={children <= 0}>
                                     <Minus size={14}/>
                                 </button>
                                 <span className="w-4 text-center font-medium">{children}</span>
-                                <button type="button" onClick={incrementChildren} className="w-8 h-8 rounded-full border border-stone-300 flex items-center justify-center hover:bg-white transition-colors disabled:opacity-30" disabled={totalMainGuests >= maxMainGuests}>
+                                <button type="button" onClick={incrementChildren} aria-label={`${t('book.increase')} ${t('book.children')}`} className="w-8 h-8 rounded-full border border-stone-300 flex items-center justify-center hover:bg-white transition-colors disabled:opacity-30" disabled={totalMainGuests >= maxMainGuests}>
                                     <Plus size={14}/>
                                 </button>
                             </div>
@@ -445,15 +548,15 @@ function App() {
 
                         <div className="flex items-center justify-between">
                             <div>
-                                <h4 className="font-semibold text-gray-800">Neonati</h4>
-                                <p className="text-xs text-gray-500">Meno di 2 anni</p>
+                                <h4 className="font-semibold text-gray-800">{t('book.infants')}</h4>
+                                <p className="text-xs text-gray-500">{t('book.infants.hint')}</p>
                             </div>
                             <div className="flex items-center gap-3">
-                                <button type="button" onClick={decrementInfants} className="w-8 h-8 rounded-full border border-stone-300 flex items-center justify-center hover:bg-white transition-colors disabled:opacity-30" disabled={infants <= 0}>
+                                <button type="button" onClick={decrementInfants} aria-label={`${t('book.decrease')} ${t('book.infants')}`} className="w-8 h-8 rounded-full border border-stone-300 flex items-center justify-center hover:bg-white transition-colors disabled:opacity-30" disabled={infants <= 0}>
                                     <Minus size={14}/>
                                 </button>
                                 <span className="w-4 text-center font-medium">{infants}</span>
-                                <button type="button" onClick={incrementInfants} className="w-8 h-8 rounded-full border border-stone-300 flex items-center justify-center hover:bg-white transition-colors disabled:opacity-30" disabled={infants >= 1}>
+                                <button type="button" onClick={incrementInfants} aria-label={`${t('book.increase')} ${t('book.infants')}`} className="w-8 h-8 rounded-full border border-stone-300 flex items-center justify-center hover:bg-white transition-colors disabled:opacity-30" disabled={infants >= 1}>
                                     <Plus size={14}/>
                                 </button>
                             </div>
@@ -466,7 +569,7 @@ function App() {
                             className="w-full bg-[#FF5A5F] hover:bg-[#ff4046] text-white font-bold py-3.5 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 transform hover:scale-[1.01]"
                         >
                             <CalendarCheck size={20} />
-                            Verifica disponibilità su Airbnb
+                            {t('book.airbnb')}
                         </button>
 
                         <button 
@@ -475,7 +578,7 @@ function App() {
                             className="w-full bg-[#003580] hover:bg-[#002860] text-white font-bold py-3.5 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 transform hover:scale-[1.01]"
                         >
                             <span className="w-6 flex justify-center"><CalendarCheck size={20} /></span>
-                            <span className="text-center">Verifica disponibilità su Booking.com</span>
+                            <span className="text-center">{t('book.bookingCom')}</span>
                         </button>
                     </div>
                 </form>
@@ -496,21 +599,31 @@ function App() {
             >
                 <div className="bg-gray-900 group-hover:bg-gray-800 transition-colors rounded-md p-2 flex items-center gap-2">
                     <Instagram className="text-white" size={24} />
-                    <span className="text-white font-medium">Seguici su Instagram</span>
+                    <span className="text-white font-medium">{t('footer.instagram')}</span>
                 </div>
             </a>
         </div>
 
         <h4 className="font-serif text-2xl text-white mb-4">La Casa di LO</h4>
-        <p className="mb-2">Vico Castelfidardo, 10, 70043 Monopoli BA, Italia</p>
-        <p className="mb-4 text-sm">Lingue parlate: Italiano, Inglese, Francese, Spagnolo</p>
+        <p className="mb-2">{t('footer.address')}</p>
+        <p className="mb-4 text-sm">{t('footer.languages')}</p>
         <p className="mb-8 text-xs text-stone-500 font-mono tracking-wide">
-            Numero di licenza: 072030C200040067, IT072030C200040067
+            {t('footer.license')}
         </p>
         <div className="text-sm border-t border-gray-800 pt-8">
-            &copy; {new Date().getFullYear()} La Casa di LO. Tutti i diritti riservati.
+            &copy; {new Date().getFullYear()} La Casa di LO. {t('footer.rights')}
         </div>
       </footer>
+
+      {/* Lightbox galleria: frecce, Esc e alt descrittivi */}
+      {lightboxIndex !== null && (
+        <Lightbox
+          images={lightboxImages}
+          index={lightboxIndex}
+          onIndexChange={setLightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+        />
+      )}
 
       {/* Banner consenso cookie (GDPR): Google Analytics parte solo dopo l'accettazione */}
       <CookieBanner />
