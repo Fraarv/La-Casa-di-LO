@@ -425,9 +425,9 @@ function App() {
                             <h4 className="font-bold text-gray-800 text-lg">{t('location.around.title')}</h4>
                         </div>
                         <ul className="space-y-2 text-sm text-gray-600">
-                            <li className="flex justify-between"><span>{t('location.around.ilRitrovo')}</span> <span className="font-semibold">150 m</span></li>
                             <li className="flex justify-between"><span>{t('location.around.pizziamo')}</span> <span className="font-semibold">200 m</span></li>
                             <li className="flex justify-between"><span>{t('location.around.caffeSport')}</span> <span className="font-semibold">250 m</span></li>
+                            <li className="flex justify-between"><span>{t('location.around.quadrifoglio')}</span> <span className="font-semibold">{t('location.distance.quadrifoglio')}</span></li>
                         </ul>
                     </div>
 

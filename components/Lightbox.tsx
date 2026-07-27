@@ -112,19 +112,13 @@ export const Lightbox: React.FC<LightboxProps> = ({ images, index, onIndexChange
       )}
 
       {/* Immagine */}
-      <figure
-        className="max-w-[92vw] max-h-[82vh] flex flex-col items-center gap-4"
+      {/* L'alt resta per screen reader e accessibilità, ma non viene mostrato come didascalia */}
+      <img
+        src={image.src}
+        alt={image.alt}
         onClick={(e) => e.stopPropagation()}
-      >
-        <img
-          src={image.src}
-          alt={image.alt}
-          className="max-w-[92vw] max-h-[72vh] object-contain rounded-lg shadow-2xl"
-        />
-        <figcaption className="text-white/80 text-sm text-center px-6 max-w-2xl">
-          {image.alt}
-        </figcaption>
-      </figure>
+        className="max-w-[92vw] max-h-[82vh] object-contain rounded-lg shadow-2xl"
+      />
 
       {/* Successiva */}
       {total > 1 && (

@@ -110,7 +110,7 @@ const it = {
   'location.beaches.calaPortoRosso': 'Cala Porto Rosso',
   'location.beaches.lidoPantano': 'Lido Pantano',
   'location.around.title': 'Nei Dintorni',
-  'location.around.ilRitrovo': 'Ristorante Il Ritrovo',
+  'location.around.quadrifoglio': 'Ristorante Il Quadrifoglio',
   'location.around.pizziamo': 'Ristorante Pizziamo',
   'location.around.caffeSport': 'Caffè dello Sport',
   'location.transport.title': 'Trasporti',
@@ -121,6 +121,7 @@ const it = {
   'location.attractions.cathedral': 'Cattedrale',
   'location.attractions.egnazia': 'Museo Egnazia',
   'location.attractions.polignano': 'Polignano a Mare',
+  'location.distance.quadrifoglio': '600 m',
   'location.distance.lidoPantano': '1,5 km',
   'location.distance.cathedral': '5 min',
 
@@ -271,7 +272,7 @@ const en: TranslationDictionary = {
   'location.beaches.calaPortoRosso': 'Cala Porto Rosso',
   'location.beaches.lidoPantano': 'Lido Pantano',
   'location.around.title': 'Nearby',
-  'location.around.ilRitrovo': 'Il Ritrovo Restaurant',
+  'location.around.quadrifoglio': 'Il Quadrifoglio Restaurant',
   'location.around.pizziamo': 'Pizziamo Restaurant',
   'location.around.caffeSport': 'Caffè dello Sport',
   'location.transport.title': 'Transport',
@@ -282,6 +283,7 @@ const en: TranslationDictionary = {
   'location.attractions.cathedral': 'Cathedral',
   'location.attractions.egnazia': 'Egnazia Museum',
   'location.attractions.polignano': 'Polignano a Mare',
+  'location.distance.quadrifoglio': '600 m',
   'location.distance.lidoPantano': '1.5 km',
   'location.distance.cathedral': '5 min',
 
