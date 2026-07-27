@@ -8,6 +8,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Cookie } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const CONSENT_KEY = 'cookie-consent';
 const GA_ID = 'G-SZS9ZJKXSW';
@@ -54,6 +55,7 @@ const storeConsent = (value: string) => {
 };
 
 export const CookieBanner: React.FC = () => {
+  const { t } = useLanguage();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -80,15 +82,15 @@ export const CookieBanner: React.FC = () => {
       className="fixed bottom-0 inset-x-0 z-[60] p-4"
       role="dialog"
       aria-live="polite"
-      aria-label="Consenso cookie"
+      aria-label={t('cookie.label')}
     >
       <div className="max-w-3xl mx-auto bg-white/95 backdrop-blur rounded-xl shadow-2xl border border-stone-200 p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
         <div className="flex items-start gap-3 flex-1">
           <Cookie className="text-puglia-sea shrink-0 mt-1" size={22} aria-hidden="true" />
           <p className="text-sm text-gray-600 leading-relaxed">
-            Questo sito utilizza <strong className="text-gray-800">Google Analytics</strong> per
-            raccogliere statistiche di visita in forma aggregata, attivati solo previo tuo
-            consenso. Puoi accettare o rifiutare: la scelta sarà ricordata su questo dispositivo.
+            {t('cookie.text.before')}
+            <strong className="text-gray-800">{t('cookie.text.strong')}</strong>
+            {t('cookie.text.after')}
           </p>
         </div>
         <div className="flex gap-2 shrink-0 self-end sm:self-center">
@@ -97,14 +99,14 @@ export const CookieBanner: React.FC = () => {
             onClick={() => handleChoice(false)}
             className="px-4 py-2 rounded-lg border border-stone-300 text-gray-600 font-semibold text-sm hover:bg-stone-100 transition-colors"
           >
-            Rifiuta
+            {t('cookie.reject')}
           </button>
           <button
             type="button"
             onClick={() => handleChoice(true)}
             className="px-5 py-2 rounded-lg bg-puglia-sea text-white font-bold text-sm hover:bg-[#00557a] transition-colors shadow-md"
           >
-            Accetta
+            {t('cookie.accept')}
           </button>
         </div>
       </div>
