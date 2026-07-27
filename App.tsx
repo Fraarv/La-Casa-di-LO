@@ -7,6 +7,7 @@
 import React, { useState } from 'react';
 import { MapPin, Wifi, Coffee, Utensils, Waves, CalendarCheck, Home, Tv, Wind, Dog, Users, CheckCircle, Ban, ShowerHead, Instagram, Minus, Plus, Train, Plane, UtensilsCrossed, Zap, Shirt } from 'lucide-react';
 import { DatePicker } from './components/DatePicker';
+import { CookieBanner } from './components/CookieBanner';
 
 // Prefissa gli asset statici con il base path configurato in Vite
 const assetUrl = (path: string) => `${import.meta.env.BASE_URL}${path}`;
@@ -510,6 +511,9 @@ function App() {
             &copy; {new Date().getFullYear()} La Casa di LO. Tutti i diritti riservati.
         </div>
       </footer>
+
+      {/* Banner consenso cookie (GDPR): Google Analytics parte solo dopo l'accettazione */}
+      <CookieBanner />
     </div>
   );
 }
